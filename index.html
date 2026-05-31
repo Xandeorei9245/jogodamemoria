@@ -13,7 +13,23 @@ body {
 	transition: background-color 0.15s ease-in-out;
 }
 
-#jogo {
+button {
+	width: 30vw;
+	height: 20vh;
+	border: 2vw solid #229400;
+	background-color: #32C400;
+	font-size: 4vw;
+	color: white;
+	font-weight: 700;
+	border-radius: 1.5vw;
+	transition: transform 0.2s ease-in-out;
+}
+
+button:active {
+	transform: scale(0.95);
+}
+
+#jogo-no-meio, #menu {
 	position: absolute;
   top: 50%;
   left: 50%;
@@ -38,40 +54,46 @@ body {
 </style>
 </head>
 <body>
-<p id="fase">0</p>
-<audio id="acerto" src="elevenlabs-sino-animador-sinalizando-uma-resposta-correta-tom-alegre_52aFMH2t.mp3"></audio>
-<audio id="vitória" src="freesound_community-goodresult-82807.mp3"></audio>
-<audio id="erro" src="eritnhut1992-buzzer-or-wrong-answer-20582.mp3"></audio>
-<div id="jogo">
-	<p id="parte-fase"></p>
-	<div id="espacos">
-		<div class="espaco"></div>
-		<div class="espaco"></div>
-		<div class="espaco"></div>
+<div id="menu">
+	<h1>Jogo da Memória</h1>
+	<button id="jogar">Jogar</button>
+</div>
+<div id="jogo" class="hidden">
+	<p id="fase">0</p>
+	<audio id="acerto" src="elevenlabs-sino-animador-sinalizando-uma-resposta-correta-tom-alegre_52aFMH2t.mp3"></audio>
+	<audio id="vitória" src="freesound_community-goodresult-82807.mp3"></audio>
+	<audio id="erro" src="eritnhut1992-buzzer-or-wrong-answer-20582.mp3"></audio>
+	<div id="jogo-no-meio">
+		<p id="parte-fase"></p>
+		<div id="espacos">
+			<div class="espaco"></div>
+			<div class="espaco"></div>
+			<div class="espaco"></div>
+			<br>
+			<div class="espaco"></div>
+			<div class="espaco"></div>
+			<div class="espaco"></div>
+			<br>
+			<div class="espaco"></div>
+			<div class="espaco"></div>
+			<div class="espaco"></div>
+		</div>
+		<div id="espacos-player" class="hidden">
+			<div class="espaco clicavel"></div>
+			<div class="espaco clicavel"></div>
+			<div class="espaco clicavel"></div>
+			<br>
+			<div class="espaco clicavel"></div>
+			<div class="espaco clicavel"></div>
+			<div class="espaco clicavel"></div>
+			<br>
+			<div class="espaco clicavel"></div>
+			<div class="espaco clicavel"></div>
+			<div class="espaco clicavel"></div>
+		</div>
 		<br>
-		<div class="espaco"></div>
-		<div class="espaco"></div>
-		<div class="espaco"></div>
-		<br>
-		<div class="espaco"></div>
-		<div class="espaco"></div>
-		<div class="espaco"></div>
+		<p id="tempo"></p>
 	</div>
-	<div id="espacos-player" class="hidden">
-		<div class="espaco clicavel"></div>
-		<div class="espaco clicavel"></div>
-		<div class="espaco clicavel"></div>
-		<br>
-		<div class="espaco clicavel"></div>
-		<div class="espaco clicavel"></div>
-		<div class="espaco clicavel"></div>
-		<br>
-		<div class="espaco clicavel"></div>
-		<div class="espaco clicavel"></div>
-		<div class="espaco clicavel"></div>
-	</div>
-	<br>
-	<p id="tempo"></p>
 </div>
 <script>
 window.onload = () => {
@@ -166,7 +188,12 @@ window.onload = () => {
 			}
 		}, 1000);
 	}
-	jogo(1);
+	
+	document.getElementById("jogar").addEventListener("click", () => {
+		document.getElementById("menu").remove();
+		document.getElementById("jogo").classList.remove("hidden");
+		jogo(1);
+	});
 }
 </script>
 </body>

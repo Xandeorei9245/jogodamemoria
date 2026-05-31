@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<title>Jogo da Memória</title>
+<meta charset="UTF-8">
+<link rel="icon" href="favicon.ico" type="image/x-icon">
+<style>
+body {
+	font-family: sans-serif;
+	font-weight: 900;
+	font-size: 2vw;
+	overflow: hidden;
+	transition: background-color 0.15s ease-in-out;
+}
+
+#jogo {
+	position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+	text-align: center;
+}
+
+.espaco {
+	width: 5vw;
+	height: 5vw;
+	background-color: red;
+	border: 0.5vw solid black;
+	display: inline-block;
+}
+
+.hidden { display: none; }
+
+.clicavel {
+	cursor: pointer;
+	transition: background-color 0.075s ease;
+}
+</style>
+</head>
+<body>
+<p id="fase">0</p>
+<audio id="acerto" src="elevenlabs-sino-animador-sinalizando-uma-resposta-correta-tom-alegre_52aFMH2t.mp3"></audio>
+<audio id="vitória" src="freesound_community-goodresult-82807.mp3"></audio>
+<audio id="erro" src="eritnhut1992-buzzer-or-wrong-answer-20582.mp3"></audio>
+<div id="jogo">
+	<p id="parte-fase"></p>
+	<div id="espacos">
+		<div class="espaco"></div>
+		<div class="espaco"></div>
+		<div class="espaco"></div>
+		<br>
+		<div class="espaco"></div>
+		<div class="espaco"></div>
+		<div class="espaco"></div>
+		<br>
+		<div class="espaco"></div>
+		<div class="espaco"></div>
+		<div class="espaco"></div>
+	</div>
+	<div id="espacos-player" class="hidden">
+		<div class="espaco clicavel"></div>
+		<div class="espaco clicavel"></div>
+		<div class="espaco clicavel"></div>
+		<br>
+		<div class="espaco clicavel"></div>
+		<div class="espaco clicavel"></div>
+		<div class="espaco clicavel"></div>
+		<br>
+		<div class="espaco clicavel"></div>
+		<div class="espaco clicavel"></div>
+		<div class="espaco clicavel"></div>
+	</div>
+	<br>
+	<p id="tempo"></p>
+</div>
+<script>
+window.onload = () => {
+	const espacos = document.getElementById("espacos");
+	const espacosJogador = document.getElementById("espacos-player");
+	const tempoSaida = document.getElementById("tempo");
+	const parteFase = document.getElementById("parte-fase");
+	const espaco = espacos.children;
+	const espacoJogador = espacosJogador.children;
+	const cores = ["red", "green"];
+	const calcularTempo = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
+	
+	let ns = {};
+	let chuteJogador = [];
+	
+	const clickQuadradoPlayer = (quadrado) => {
+		if (espacoJogador[quadrado].tagName !== "DIV") return;
+		if (chuteJogador[quadrado] == "red") {
+			chuteJogador[quadrado] = "green";
+			espacoJogador[quadrado].style.backgroundColor = "green";
+		} else {
+			chuteJogador[quadrado] = "red";
+			espacoJogador[quadrado].style.backgroundColor = "red";
+		}
+	}
+	
+	function jogo(fase) {
+		let tempo = 10 - (fase - 1);
+		let ordemCerta = [];
+		
+		espacos.classList.remove("hidden");
+		parteFase.classList.remove("hidden");
+		espacosJogador.classList.add("hidden");
+		document.getElementById("fase").innerText = "Fase: " + fase;
+		parteFase.innerText = "Memorize o padrão...";
+		
+		for (let i = 0; i < espaco.length; i++) {
+			if (espaco[i].tagName === "DIV") {
+				espaco[i].style.backgroundColor = cores[Math.floor(Math.random() * cores.length)];
+				ordemCerta.push(espaco[i].style.backgroundColor);
+			} else ordemCerta.push(null);
+		}
+		tempoSaida.innerText = tempo;
+		let memorizacao = setInterval(() => {
+			tempo--;
+			tempoSaida.innerText = tempo;
+			if (tempo <= 0) {
+				espacos.classList.add("hidden");
+				espacosJogador.classList.remove("hidden");
+				clearInterval(memorizacao);
+				tempo = 10;
+				tempoSaida.innerText = 10;
+				parteFase.innerText = "Qual é o padrão certo?";
+				chuteJogador = ["red", "red", "red", null, "red", "red", "red", null, "red", "red", "red"];
+				for (let i = 0; i < espacoJogador.length; i++) {
+					espacoJogador[i].style.backgroundColor = "red";
+					if (fase === 1) {
+						ns["n" + i] = i;
+						const identificarClick = () => clickQuadradoPlayer(i);
+						espacoJogador[i].addEventListener("click", identificarClick);
+					}
+				}
+				memorizacao = setInterval(() => {
+					tempo--;
+					tempoSaida.innerText = tempo;
+					if (tempo <= 0) {
+						espacos.classList.add("hidden");
+						espacosJogador.classList.add("hidden");
+						parteFase.classList.add("hidden");
+						clearInterval(memorizacao);
+						if (chuteJogador.toString() == ordemCerta.toString()) {
+							document.body.style.backgroundColor = "rgba(0, 255, 0, 0.3)";
+							if (fase >= 10) {
+								tempoSaida.innerText = "Você ganhou!";
+								document.getElementById("vitória").play();
+							} else {
+								tempoSaida.innerText = "Você acertou!";
+								document.getElementById("fase").innerText = "Fase: " + (fase + 1);
+								document.getElementById("acerto").play();
+								setTimeout(() => {
+									document.body.style.backgroundColor = "white";
+									jogo(fase + 1);
+								}, 2000);
+							}
+						} else {
+							tempoSaida.innerText = "Você errou...";
+							document.getElementById("erro").play();
+							document.body.style.backgroundColor = "rgba(255, 0, 0, 0.3)";
+						}
+					}
+				}, 1000);
+			}
+		}, 1000);
+	}
+	jogo(1);
+}
+</script>
+</body>
+</html>
